@@ -1,6 +1,6 @@
 import react, { Dispatch, SetStateAction } from 'React';
 import LottieView from 'lottie-react-native';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 
 interface SplashProps {
     setIsLoading: Dispatch<SetStateAction<boolean>>;
@@ -9,6 +9,7 @@ interface SplashProps {
 const Splash = ({setIsLoading}: SplashProps) => {
     return (
         <View style={{flex:1, alignItems: 'center', margin: 0}}>
+            <Text>Alpha 0.1</Text>
             <LottieView
                 source={require('')}
                 autoPlay
@@ -16,6 +17,7 @@ const Splash = ({setIsLoading}: SplashProps) => {
                 resizeMode='cover'
                 onAnimationFinish={() => setIsLoading(false)}
             ></LottieView>
+
         </View>
     )
 }

@@ -4,6 +4,7 @@ import { Alert, Button, SafeAreaView, StyleSheet, Text, TextInput, View } from "
 import { useNavigation } from "react-router-native";
 import { UserContext, useUser } from "../../feature/User/UserContext";
 import LottieView from "lottie-react-native";
+import { baseUrl } from "../../utils";
 
 type Props = {
   navigation: any
@@ -13,8 +14,8 @@ export const CreateUser = ({navigation}: Props) => {
   const [usernameInput, onChangeUsername] = useState("");
   const [password, onChangePassword] = useState('');
   const [description, setDescription] = useState('');
-  const baseUrl = "http://192.168.1.130:5000";
-  const [error, setError] = useState('')
+
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // ⬇ This calls my get request from the server
@@ -28,8 +29,9 @@ export const CreateUser = ({navigation}: Props) => {
         data: {"username": usernameInput.toString(), "password" : password.toString(), "description" : description.toString()}
       }).then((response) => {
         console.log(response.data);
-        if(response.data)
+        if(response.data){
           moveToApp();
+        }
       }).catch(error => {
         console.log(error);
         setError(error);
@@ -52,6 +54,7 @@ export const CreateUser = ({navigation}: Props) => {
         <Text>Password</Text>
         <TextInput
           style={styles.input}
+          secureTextEntry={true}
           onChangeText={onChangePassword}
           value={password}
         />

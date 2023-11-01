@@ -1,8 +1,9 @@
 export interface ISportRecord {
-    _id: string
-    dateTime: string
+    _id: string,
+    dateTime: string,
     sport: string,
-    distance: number
-    duration: number
-    description: string
+    distance: number,
+    duration: number,
+    description: string,
+    icon: string
   }
