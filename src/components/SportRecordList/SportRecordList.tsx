@@ -9,16 +9,27 @@ import { RootStackParamList } from "../../interfaces/types";
 import { useParams } from "react-router-native";
 import { RollInRight } from "react-native-reanimated";
 import { useFocusEffect } from "@react-navigation/native";
+import { baseUrl } from "../../utils";
+import { faPersonBiking} from '@fortawesome/free-solid-svg-icons/faPersonBiking'
+import { faPersonRunning} from '@fortawesome/free-solid-svg-icons/faPersonRunning'
+import { faPersonSwimming} from '@fortawesome/free-solid-svg-icons/faPersonSwimming'
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 type Props = {
   navigation: any
 }
 
+let iconMap = new Map<string, IconProp>([
+  ["icon1", faPersonRunning],
+  ["icon2", faPersonBiking],
+  ["icon3", faPersonSwimming],
+])
+
 type SportRecordListProps = NativeStackScreenProps<RootStackParamList, "SportRecordList">;
 
 export const SportRecordList = (props : SportRecordListProps) => {
   const user = useContext(UserContext);
-  const baseUrl = "http://192.168.1.130:5000"
   const [sportRecords, setSportRecords] = useState<ISportRecord[]>([]);
   const [sports, setSports] = useState<ISport[]>();
   const [updateVal, setUpdateVal] = useState(props?.route.params?.updateVal || false);
@@ -86,15 +97,16 @@ export const SportRecordList = (props : SportRecordListProps) => {
 
     return (
       <>
-      <View style={{backgroundColor: '#DADADA', flex: 1, marginTop: 30, padding: 10}}>
-        <View style={{flexDirection: 'row', justifyContent: "space-between", height: 100}}>
+      <View style={{backgroundColor: '#DADADA', padding: 10, paddingTop: 30}}>
+        <View style={{flexDirection: 'row', justifyContent: "space-between"}}>
           <View style={[styles.box, {backgroundColor: "cyan"}]}>
             <Text>Hello, {user.username}!</Text>
           </View>
-          <View style={styles.box}>
+
+        </View>
+        <View style={styles.box}>
             <Text onPress={() => logOutUser()} style={{alignContent: "flex-end"}}>Logout</Text>
           </View>
-        </View>
       </View>
       <View>
         <TouchableOpacity style={styles.button} onPress={() => getSportRecords()}><Text style={styles.buttonLabel}>Get SportRecords</Text></TouchableOpacity>
@@ -102,15 +114,17 @@ export const SportRecordList = (props : SportRecordListProps) => {
         <TouchableOpacity style={styles.button} onPress={() => userSettings()}><Text style={styles.buttonLabel}>User Settings</Text></TouchableOpacity>
           <DataTable>
           <DataTable.Header style={styles.head}>
+                    <DataTable.Title>Icon</DataTable.Title>
                     <DataTable.Title>Sport</DataTable.Title>
                     <DataTable.Title>Date</DataTable.Title>
                     <DataTable.Title>Distance</DataTable.Title>
+                    <DataTable.Title>Duration</DataTable.Title>                    
                     <DataTable.Title>Description</DataTable.Title>
                 </DataTable.Header>
         
           {sportRecords?.map((record) => { return(
           <>
-                <DataTable.Row onLongPress={() =>
+                <DataTable.Row id={record._id} onPress={() =>
                        Alert.alert('Alert Title', 'Choose an action', [
                         {
                           text: 'Edit',
@@ -120,6 +134,7 @@ export const SportRecordList = (props : SportRecordListProps) => {
                             date: record.dateTime.toString(),
                             description: record.description.toString(),
                             sport: record.sport.toString(),
+                            icon: record.icon.toString(),
                             _id: record._id.toString()
                           }),
                         },
@@ -129,9 +144,13 @@ export const SportRecordList = (props : SportRecordListProps) => {
                         {text: 'Cancel', onPress: () => console.log('OK Pressed')},
                       ])}
                    key={record._id} style={styles.row}>
+                    <DataTable.Cell key={record.icon}>
+                      <FontAwesomeIcon icon={iconMap.get(record.icon) as IconProp}></FontAwesomeIcon>
+                    </DataTable.Cell>
                     <DataTable.Cell key={record._id + "-sportId"}>{record.sport}</DataTable.Cell>
                     <DataTable.Cell>{record.dateTime}</DataTable.Cell>
                     <DataTable.Cell>{record.distance}</DataTable.Cell>
+                    <DataTable.Cell>{record.duration}</DataTable.Cell>
                     <DataTable.Cell>{record.description}</DataTable.Cell>
                 </DataTable.Row>         
               </>)})

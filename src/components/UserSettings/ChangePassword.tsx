@@ -17,6 +17,7 @@ export const ChangePassword = (props : ChangePasswordProps) => {
     const [oldPassword, setOldPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState(false)
 
   useEffect(() => {
     // ⬇ This calls my get request from the server
@@ -26,8 +27,14 @@ export const ChangePassword = (props : ChangePasswordProps) => {
     axios({
         method: 'post',
         url: `${baseUrl}/api/user/changepassword`,
-        data: {username: username, oldpassword: oldPassword, newPassword: newPassword, confirmPassword: confirmPassword}
+        data: {username: username, oldPassword: oldPassword, newPassword: newPassword, confirmPassword: confirmPassword}
       }).then((response) => {
+        console.log(response.data);
+        setError(response.data.error);
+        if (response.data.error == false)
+        {
+          props.navigation.navigate("UserSettings")
+        }
       })
       .catch(error => console.log(error.response));
       
@@ -36,24 +43,28 @@ export const ChangePassword = (props : ChangePasswordProps) => {
 
     return (
       <SafeAreaView>
+        {error ? <Text style={{color: "red"}}>Password unmatch</Text> : ""}
         <Text>CHANGE PASSWORD</Text>
         <Text>Old password</Text>
         <TextInput
           style={styles.input}
           onChangeText={setOldPassword}
           value={oldPassword}
+          secureTextEntry={true}
         />
         <Text>New Password</Text>
         <TextInput
           style={styles.input}
           onChangeText={setNewPassword}
           value={newPassword}
+          secureTextEntry={true}
         />
         <Text>Re-type new password</Text>
         <TextInput
           style={styles.input}
           onChangeText={setConfirmPassword}
           value={confirmPassword}
+          secureTextEntry={true}
         />
        
         <Button title="Save" onPress={() => saveNewPassword()}></Button>

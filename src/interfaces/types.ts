@@ -13,6 +13,7 @@ export type RootStackParamList = {
         distance?: string;
         duration?: string;
         sport?: string;
+        icon?: string;
     } | undefined;
     UserSettings: undefined;
     ChangePassword: undefined;

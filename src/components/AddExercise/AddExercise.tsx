@@ -1,16 +1,21 @@
 import axios from "axios";
 import React, { ChangeEvent, useContext, useEffect, useRef, useState } from "react"
-import { Alert, Button, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native"
+import { Alert, Button, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native"
 import { UserContext } from "../../feature/User/UserContext";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../interfaces/types";
 import * as ImagePicker from 'react-native-image-picker';
 import { Dropdown } from "react-native-element-dropdown";
+import { baseUrl } from "../../utils";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faMugSaucer } from '@fortawesome/free-solid-svg-icons/faMugSaucer'
+import { faPersonBiking } from '@fortawesome/free-solid-svg-icons/faPersonBiking'
+import { faPersonRunning } from '@fortawesome/free-solid-svg-icons/faPersonRunning'
+import { faPersonSwimming } from '@fortawesome/free-solid-svg-icons/faPersonSwimming'
 
 type AddExerciseProps = NativeStackScreenProps<RootStackParamList, "AddExercise">;
 
 export const AddExercise = (props : AddExerciseProps) => {
-  const baseUrl = "http://192.168.1.130:5000";
   const [date, setDate] = useState(props.route.params?.date || "");
   const [sport, setSport] = useState(props.route.params?.sport?.toString() || "running");
   const [distance, setDistance] = useState(props.route.params?.distance?.toString() || "");
@@ -21,15 +26,7 @@ export const AddExercise = (props : AddExerciseProps) => {
   const [response, setResponse] = React.useState<any>(null);
   const [error, setErrorText] = useState("");
   const [sports, setSports] = useState<ISport[]>([]);
-
-  const onButtonPress = React.useCallback((type:string, options:any) => {
-    if (type === 'capture') {
-      ImagePicker.launchCamera(options, setResponse);
-      console.log(response);
-    } else {
-      ImagePicker.launchImageLibrary(options, setResponse);
-    }
-  }, []);
+  const [icon, setIcon] = useState(props.route.params?.icon?.toString() || "");
 
   useEffect(() => {
     getSports();
@@ -38,7 +35,7 @@ export const AddExercise = (props : AddExerciseProps) => {
   function validateForm() {
     if(date.length == 0 ||  sport.length == 0 || (distance.length == 0 && duration.length == 0))
     {
-      console.log("Error")
+      console.log("Error");
       setErrorText("Field must not be empty");
       return false;
     }
@@ -52,7 +49,6 @@ export const AddExercise = (props : AddExerciseProps) => {
       headers: ({})
     }).then((response) => {
       setSports(response.data);
-      console.log(sports);
     });
   }
 
@@ -69,7 +65,8 @@ export const AddExercise = (props : AddExerciseProps) => {
             "sport" : sport.toString(),
             "distance": distance.toString(),
             "duration": duration.toString(),
-            "description": description.toString()
+            "description": description.toString(),
+            "icon": icon.toString()
           }
         }).then((response) => {
           props.navigation.navigate("SportRecordList", {updateVal: true});
@@ -86,6 +83,7 @@ export const AddExercise = (props : AddExerciseProps) => {
               "distance": distance.toString(),
               "duration": duration.toString(),
               "description": description.toString(),
+              "icon": icon.toString(),
               "_id": exericiseId
             }
           }).then((response) => {
@@ -96,61 +94,87 @@ export const AddExercise = (props : AddExerciseProps) => {
   }
 
     return (
-      <SafeAreaView>
-        <Text>ID {sport}</Text>
+      <SafeAreaView style={{padding: 20}}>
         {error ? <Text style={{color:"red"}}>{error}</Text> : ""}
         <Text>Date</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setDate}
-          value={date}
-        />
+          <TextInput
+            style={styles.input}
+            onChangeText={setDate}
+            value={date}
+          />
         <Text>Sport</Text>
-        <Dropdown
-          data={sports}
-          onChange={(e) => setSport(e.sportName)}
-          labelField={"sportName"}
-          valueField={"selectionId"}
-          search
-          placeholder="asd"
-        ></Dropdown>
+          <Dropdown
+            data={sports}
+            onChange={(e) => setSport(e.sportName)}
+            labelField={"sportName"}
+            valueField={"selectionId"}
+            search
+            placeholder="asd"
+          ></Dropdown>
+        <Text>Icon</Text>
+        <View  style={styles.iconsWrapper}>
+          <TouchableOpacity id="icon-1" style={[styles.iconContainer, icon == "icon1" ? styles.activeIcon : styles.inactiveIcon]} onPress={() => setIcon("icon1")}>
+            <FontAwesomeIcon icon={ faPersonRunning} />
+          </TouchableOpacity>
+          <TouchableOpacity id="icon-2" style={[styles.iconContainer, icon == "icon2" ? styles.activeIcon : styles.inactiveIcon]} onPress={() => setIcon("icon2")}>
+            <FontAwesomeIcon icon={ faPersonBiking }/>
+          </TouchableOpacity>
+          <TouchableOpacity id="icon-3" style={[styles.iconContainer, icon == "icon3" ? styles.activeIcon : styles.inactiveIcon]} onPress={() => setIcon("icon3")}>
+            <FontAwesomeIcon icon={ faPersonSwimming }/>
+          </TouchableOpacity>
+        </View>
         <Text>Distance</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setDistance}
-          value={distance}
-        />
+          <TextInput
+            style={styles.input}
+            onChangeText={setDistance}
+            value={distance}
+          />
         <Text>Duration</Text>
-        <TextInput
-          style={styles.input}
-          onChangeText={setDuration}
-          value={duration}
-        />
+          <TextInput
+            style={styles.input}
+            onChangeText={setDuration}
+            value={duration}
+          />
         <Text>Description</Text>
         <TextInput
           style={styles.input}
           onChangeText={setDescription}
           value={description}
         />
-        {/* <Button title="Capture" onPress={() => onButtonPress('capture', {saveToPhotos: true, mediaType: 'photo'})}></Button> */}
-        <Button title="Save" onPress={() => saveExercise()}></Button>
-        <Button title="Discard" onPress={() => props.navigation.navigate("SportRecordList", {updateVal: true})}></Button>
+        <SafeAreaView style={{gap: 12}}>
+          <Button title="Save" onPress={() => saveExercise()}></Button>
+          <Button title="Discard" onPress={() => props.navigation.navigate("SportRecordList", {updateVal: true})}></Button>
+        </SafeAreaView>
       </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
-    input: {
-      height: 40,
-      margin: 12,
-      borderWidth: 1,
-      padding: 10,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      marginVertical: 8,
-    },
+  input: {
+    height: 40,
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginVertical: 8,
+  },
+  iconContainer: {
+    padding: 10,
+    border: "1px solid black"
+  },
+  iconsWrapper: {
+    flex: 0,
+    flexDirection: 'row'
+  },
+  activeIcon: {
+    backgroundColor: "cyan"
+  },
+  inactiveIcon:{
+    backgroundColor: "gray"
+  }
   });
 
 
